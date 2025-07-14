@@ -12,6 +12,9 @@ const PORT = 3000 || process.env.PORT;
 
 connectDB();
 
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+
 app.use(expressLayout);
 app.set('layout','./layouts/main');
 app.set('view engine','ejs');
