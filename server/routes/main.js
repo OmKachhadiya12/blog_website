@@ -16,14 +16,15 @@ router.get('',async(req,res) => {
         .limit(perPage)
         .exec();
 
-        const count = Post.count();
+        const count = ost.countDocuments();
         const nextPage = parseInt(page) + 1;
         const hasNextPage = nextPage <= Math.ceil(count / perPage);
 
         res.render('index',{
             data,
             current: page,
-            nextPage: hasNextPage ? nextPage : null
+            nextPage: hasNextPage ? nextPage : null,
+            currentRoute: '/'
         });
     }catch(err){
         console.log(err)
@@ -40,7 +41,7 @@ router.get('/post/:id',async(req,res) => {
             description: 'Simple Blog created using Nodejs,Express and MongoDB'
         }
 
-        res.render('post',{local,data});
+        res.render('post',{local,data,currentRoute: `/post/${slug}`});
 
     }catch(err){
         console.log(err);

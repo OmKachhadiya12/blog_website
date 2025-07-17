@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Post = require('./../models/post');
 const User = require('./../models/user');
-const bcrypt = require('brcypt');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -73,9 +73,94 @@ router.post('/register',async(req,res) => {
     }
 });
 
-router.get('/dashboard',(req,res) => {
+router.get('/dashboard',async(req,res) => {
+    try{
+        const locals = {
+            title: 'Dashboard',
+            description: 'Simple Blog created using Nodejs,Express and MongoDB'
+        }
+        const data = await Post.find();
+            
+        res.render('admin/dashboard',{locals,data,layout: adminLayout})
 
-    res.render('admin/dashboard')
+    }catch(err){
+        console.log(err);
+    }
+});
+
+router.get('/add-post',async(req,res) => {
+    try{
+        const locals = {
+            title: 'Add-Post',
+            description: 'Simple Blog created using Nodejs,Express and MongoDB'
+        }
+        const data = await Post.find();
+            
+        res.render('admin/dashboard',{locals,data,layout: adminLayout})
+
+    }catch(err){
+        console.log(err);
+    }
+});
+
+router.post('/add-post',async(req,res) => {
+    try{            
+        const newPost = new Post({
+            title: req.body.title,
+            body: req.body.body
+        });
+
+        await Post.create(newPost);
+        res.dashboard('/dashboard')
+
+    }catch(err){
+        console.log(err);
+    }
+});
+
+router.get('/edit-post/:id',async(req,res) => {
+    try{
+        const locals = {
+            title: 'Edit-Post',
+            description: 'Simple Blog created using Nodejs,Express and MongoDB'
+        }
+
+        const data = await Post.findOne({_id: req.params.id});
+        res.render('admin/edit-post',{ locals,data,layout: adminLayout})
+        
+    }catch(err){
+        console.log(err);
+    }
+});
+
+router.put('/edit-post/:id',async(req,res) => {
+    try{
+        await Post.findByIdAndUpdate(req.params.id,{
+            title: req.body.title,
+            body: req.body.body,
+            updatedAt: Date.now()
+        });
+        
+        res.redirect(`/edit-post/${req.params.id}`)
+
+    }catch(err){
+        console.log(err);
+    }
+});
+
+router.delete('/delete-post/:id',async(req,res) => {
+    try{
+        await Post.deleteOne({_id: req.params.id});
+        res.redirect('/dashboard');
+    }catch(err){
+        console.log(err);
+    }
+});
+
+router.get('/logout',(req,res) => {
+    res.clearCookie('token');
+    //res.json({message: 'Logout sucessfully'});
+    res.redirect('/');
 });
 
 module.exports = router;
